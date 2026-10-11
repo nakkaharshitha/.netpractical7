@@ -1,0 +1,148 @@
+using System.Web.Mvc;
+using FeedbackManagement.Models;
+
+namespace FeedbackManagement.Controllers
+{
+    public class FeedbackController : Controller
+    {
+        public ActionResult Create()
+        {
+            return View(new Feedback());
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Create(Feedback feedback)
+        {
+            if (ModelState.IsValid)
+            {
+                return RedirectToAction("Success");
+            }
+
+            return View(feedback);
+        }
+
+        public ActionResult Success()
+        {
+            return View();
+        }
+    }
+}
+using System.ComponentModel.DataAnnotations;
+
+namespace FeedbackManagement.Models
+{
+    public class Feedback
+    {
+        [Required(ErrorMessage = "Name is required")]
+        public string Name { get; set; }
+
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Enter valid email")]
+        public string Email { get; set; }
+
+        [Required(ErrorMessage = "Message is required")]
+        public string Message { get; set; }
+
+        [Range(1, 5, ErrorMessage = "Please select a rating")]
+        public int Rating { get; set; }
+    }
+}
+@model FeedbackManagement.Models.Feedback
+@using System.Collections.Generic
+@using System.Web.Mvc
+
+<p>
+    @Html.LabelFor(m => m.Name)
+    @Html.TextBoxFor(m => m.Name)
+    @Html.ValidationMessageFor(m => m.Name)
+</p>
+
+<p>
+    @Html.LabelFor(m => m.Email)
+    @Html.TextBoxFor(m => m.Email)
+    @Html.ValidationMessageFor(m => m.Email)
+</p>
+
+<p>
+    @Html.LabelFor(m => m.Message)
+    <br />
+    @Html.TextAreaFor(m => m.Message, 5, 30, null)
+    <br />
+    @Html.ValidationMessageFor(m => m.Message)
+</p>
+
+<p>
+    @Html.LabelFor(m => m.Rating)
+
+    @Html.DropDownListFor(
+        m => m.Rating,
+        new List<SelectListItem>
+        {
+            new SelectListItem { Text = "1 - Poor", Value = "1" },
+            new SelectListItem { Text = "2 - Average", Value = "2" },
+            new SelectListItem { Text = "3 - Good", Value = "3" },
+            new SelectListItem { Text = "4 - Very Good", Value = "4" },
+            new SelectListItem { Text = "5 - Excellent", Value = "5" }
+        },
+        "--Select--"
+    )
+
+    @Html.ValidationMessageFor(m => m.Rating)
+</p>
+@model FeedbackManagement.Models.Feedback
+
+@{
+    ViewBag.Title = "Feedback";
+}
+
+<h2>FEEDBACK MANAGEMENT</h2>
+
+@using (Html.BeginForm("Create", "Feedback", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    @Html.Partial("_FeedbackForm", Model)
+
+    <input type="submit" value="Submit Feedback" />
+}
+@{
+    ViewBag.Title = "Success";
+}
+
+<h2>FEEDBACK MANAGEMENT</h2>
+
+<h4>Feedback Submitted Successfully!</h4>
+
+<p>Thank you for your valuable feedback.</p>
+
+<a href="@Url.Action("Create", "Feedback")">
+    Back to Feedback
+</a>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewBag.Title - My ASP.NET Application</title>
+</head>
+<body>
+    <div class="container">
+        <header>
+            @Html.ActionLink("Application name", "Create", "Feedback")
+        </header>
+
+        <hr />
+
+        <main>
+            @RenderBody()
+        </main>
+
+        <hr />
+
+        <footer>
+            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
+        </footer>
+    </div>
+</body>
+</html>
